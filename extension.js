@@ -67,6 +67,38 @@ function activate(context) {
 		// 	// { role: 'system', content: 'You are a helpful coding assistant. Keep replies short and useful.' }
 		// 	{ role: 'system', content: 'You are a helpful developer assistant.' }
 		// ];
+
+		async function sendPrompt(chatMessages) {
+			try {
+				const response = await axios.post(
+					'https://api.groq.com/openai/v1/chat/completions',
+					{
+						model: 'llama3-70b-8192',
+						messages: chatMessages,
+						temperature: 0.7
+					},
+					{
+						headers: {
+							'Content-Type': 'application/json',
+							'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+						}
+					}
+				);
+
+				const aiResponse = response.data.choices[0].message.content.trim();
+				chatMessages.push({ role: 'assistant', content: aiResponse });
+
+				panel.webview.postMessage({
+					type: 'response',
+					value: aiResponse
+				});
+			} catch (err) {
+				panel.webview.postMessage({
+					type: 'response',
+					value: "❌ Error: " + (err.response?.data?.error?.message || err.message)
+				});
+			}
+		}
 		
 		panel.webview.onDidReceiveMessage(
 			async message => {
@@ -78,42 +110,42 @@ function activate(context) {
 
 					chatMessages.push({ role: 'user', content: userPrompt});
 					context.workspaceState.update(CHAT_KEY, chatMessages);
+					await sendPrompt(chatMessages);
 
-					try {
-						const response = await axios.post(
-							'https://api.groq.com/openai/v1/chat/completions',
-							{
-								model: 'llama3-70b-8192',
-								// messages: [
-								// 	{ role: 'system', content: 'You are a helpful developer assistant.' },
-								// 	{ role: 'user', content: userPrompt }
-								// ],
-								// messages: chatHistory,
-								messages : chatMessages,
-								temperature: 0.7
-							},
-							{
-								headers: {
-									'Content-Type': 'application/json',
-									'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-								}
-							}
-						);
+				}
 
-						const aiResponse = response.data.choices[0].message.content.trim();
+				if (message.type === 'action') {
+					if (message.value === 'fix') {
+						// const editor = vscode.window.activeTextEditor;
+						// if (!editor) {
+						// 	vscode.window.showErrorMessage('No active editor window found.');
+						// 	return;
+						// }
+						let editor = vscode.window.activeTextEditor;
+						let selection = editor?.selection;
+						let selectedText = editor?.document.getText(selection);
 
-						// chatHistory.push({ role: 'assistant', content: aiResponse});
-						chatMessages.push({ role: 'assistant', content: aiResponse});
+						// Later, inside the handler:
+						if (!editor || !selectedText?.trim()) {
+							vscode.window.showWarningMessage('Please select some code to fix.');
+							return;
+						}
 
+						// const selectedText = editor.document.getText(editor.selection);
+						if (!selectedText.trim()) {
+							vscode.window.showWarningMessage('Please select some code to fix.');
+							return;
+						}
+
+						const actionPrompt = `Fix this code:\n\n${selectedText}`;
+						chatMessages.push({ role: 'user', content: actionPrompt });
+						context.workspaceState.update(CHAT_KEY, chatMessages);
 						panel.webview.postMessage({
 							type: 'response',
-							value: aiResponse
+							value: actionPrompt,
+							role: 'user'
 						});
-					} catch (err) {
-						panel.webview.postMessage({
-							type: 'response',
-							value: "❌ Error: " + (err.response?.data?.error?.message || err.message)
-						});
+						await sendPrompt(chatMessages);
 					}
 				}
 			},
@@ -180,11 +212,22 @@ function activate(context) {
 						display: inline; /* This is key */
 					}
 
+					.message ul,
+					.message ol {
+						padding-left: 1.2em;
+						margin: 0.4em 0;
+						list-style-position: inside;
+					}
+
+					.message li {
+						margin-bottom: 0.3em;
+					}
+
 					.user {
 						background-color: #007acc;
 						color: white;
 						align-self: flex-end;
-						text-align: right;
+						text-align: left;
 						margin-left: auto;
 					}
 					.assistant {
@@ -227,6 +270,9 @@ function activate(context) {
 			</head>
 			<body>
 				<div id="chat"></div>
+				<div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
+					<button onclick="runAction('fix')">🛠 Fix Code</button>
+				</div>
 				<div id="input-area">
 					<textarea  type="text" id="userInput" placeholder="Ask something..." /></textarea>
 					<button onclick="send()">Send</button>
@@ -310,6 +356,11 @@ function activate(context) {
 							appendMessage(message.value, message.role || 'assistant');
 						}
 					});
+
+					function runAction(action) {
+						vscode.postMessage({ type: 'action', value: action });
+					}
+
 				</script>
 			</body>
 			</html>
