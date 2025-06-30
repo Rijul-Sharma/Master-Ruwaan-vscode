@@ -115,38 +115,131 @@ function activate(context) {
 				}
 
 				if (message.type === 'action') {
-					if (message.value === 'fix') {
-						// const editor = vscode.window.activeTextEditor;
-						// if (!editor) {
-						// 	vscode.window.showErrorMessage('No active editor window found.');
-						// 	return;
-						// }
-						let editor = vscode.window.activeTextEditor;
-						let selection = editor?.selection;
-						let selectedText = editor?.document.getText(selection);
+					// const editor = vscode.window.activeTextEditor;
+					// if (!editor) {
+					// 	vscode.window.showErrorMessage('No active editor window found.');
+					// 	return;
+					// }
+					let editor = vscode.window.activeTextEditor;
+					let selection = editor?.selection;
+					let selectedText = editor?.document.getText(selection);
 
-						// Later, inside the handler:
-						if (!editor || !selectedText?.trim()) {
-							vscode.window.showWarningMessage('Please select some code to fix.');
-							return;
-						}
-
-						// const selectedText = editor.document.getText(editor.selection);
-						if (!selectedText.trim()) {
-							vscode.window.showWarningMessage('Please select some code to fix.');
-							return;
-						}
-
-						const actionPrompt = `Fix this code:\n\n${selectedText}`;
-						chatMessages.push({ role: 'user', content: actionPrompt });
-						context.workspaceState.update(CHAT_KEY, chatMessages);
-						panel.webview.postMessage({
-							type: 'response',
-							value: actionPrompt,
-							role: 'user'
-						});
-						await sendPrompt(chatMessages);
+					// Later, inside the handler:
+					if (!editor || !selectedText?.trim()) {
+						vscode.window.showWarningMessage('Please select some code to fix.');
+						return;
 					}
+
+					// const selectedText = editor.document.getText(editor.selection);
+					if (!selectedText.trim()) {
+						vscode.window.showWarningMessage('Please select some code to fix.');
+						return;
+					}
+
+					// Language detection based on file extension
+					let language = '';
+					if (editor && editor.document && editor.document.fileName) {
+						const ext = editor.document.fileName.split('.').pop().toLowerCase();
+						const extToLang = {
+							'js': 'javascript',
+							'jsx': 'javascript',
+							'ts': 'typescript',
+							'tsx': 'typescript',
+							'py': 'python',
+							'java': 'java',
+							'c': 'c',
+							'cpp': 'cpp',
+							'cc': 'cpp',
+							'cs': 'csharp',
+							'go': 'go',
+							'rb': 'ruby',
+							'php': 'php',
+							'html': 'html',
+							'css': 'css',
+							'scss': 'scss',
+							'json': 'json',
+							'xml': 'xml',
+							'sh': 'bash',
+							'bash': 'bash',
+							'rs': 'rust',
+							'kt': 'kotlin',
+							'swift': 'swift',
+							'R': 'r',
+							'pl': 'perl',
+							'perl': 'perl',
+							'm': 'matlab',
+							'sql': 'sql',
+							'dart': 'dart',
+							'scala': 'scala',
+							'vb': 'vbnet',
+							'groovy': 'groovy',
+							'jl': 'julia',
+							'hs': 'haskell',
+							'erl': 'erlang',
+							'ex': 'elixir',
+							'exs': 'elixir',
+							'clj': 'clojure',
+							'cljs': 'clojure',
+							'coffee': 'coffeescript',
+							'bat': 'bat',
+							'ps1': 'powershell',
+							'psm1': 'powershell',
+							'fs': 'fsharp',
+							'fsx': 'fsharp',
+							'ada': 'ada',
+							'asm': 'assembly',
+							'lua': 'lua',
+							'md': 'markdown',
+							'yml': 'yaml',
+							'yaml': 'yaml',
+							'toml': 'toml',
+							'ini': 'ini',
+							'conf': 'conf',
+							'cfg': 'conf',
+							'tex': 'latex',
+							'latex': 'latex',
+							'proto': 'protobuf',
+							'dockerfile': 'dockerfile',
+							'makefile': 'makefile',
+							'cmake': 'cmake',
+							'vim': 'vim',
+							'vimrc': 'vim',
+							'zsh': 'zsh',
+							'fish': 'fish',
+							'awk': 'awk',
+							'sed': 'sed',
+							'tcl': 'tcl'
+						};
+						language = extToLang[ext] || '';
+					}
+
+					const codeBlock = language ? `\n\n\`\`\`${language}\n${selectedText}\n\`\`\`` : `\n\n\`\`\`\n${selectedText}\n\`\`\``;
+					let actionPrompt = '';
+					if (message.value === 'fix') {
+						actionPrompt = `Fix this code:${codeBlock}`;
+					}
+					else if (message.value === 'explain') {
+						actionPrompt = `Explain what this code does, step by step:${codeBlock}`
+					}
+					else if (message.value === 'refactor') {
+						actionPrompt = `Refactor the following code to improve structure, readability, or efficiency:${codeBlock}`;
+					}
+					else if (message.value === 'comment') {
+						actionPrompt = `Add helpful comments to this code to explain what it does:${codeBlock}`;
+					}
+					else {
+						vscode.window.showWarningMessage('Unknown action.');
+						return;
+					}
+
+					chatMessages.push({ role: 'user', content: actionPrompt });
+					context.workspaceState.update(CHAT_KEY, chatMessages);
+					panel.webview.postMessage({
+						type: 'response',
+						value: actionPrompt,
+						role: 'user'
+					});
+					await sendPrompt(chatMessages);
 				}
 			},
 			undefined,
@@ -272,6 +365,9 @@ function activate(context) {
 				<div id="chat"></div>
 				<div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
 					<button onclick="runAction('fix')">🛠 Fix Code</button>
+					<button onclick="runAction('explain')">💡 Explain Code</button>
+					<button onclick="runAction('refactor')">🧠 Refactor Code</button>
+					<button onclick="runAction('comment')">📝 Add Comments</button>
 				</div>
 				<div id="input-area">
 					<textarea  type="text" id="userInput" placeholder="Ask something..." /></textarea>
