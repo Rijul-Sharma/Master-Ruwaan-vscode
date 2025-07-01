@@ -397,12 +397,34 @@ function activate(context) {
 						div.className = 'message ' + role;
 						div.innerHTML = marked.parse(text);
 						console.log(div.innerHTML)
+
 						chat.appendChild(div);
 
 						// Highlight code blocks
 						div.querySelectorAll('pre code').forEach((block) => {
-						hljs.highlightElement(block);
+							hljs.highlightElement(block);
 						});
+						
+						div.querySelectorAll('pre').forEach(pre => {
+							const button = document.createElement('button');
+							button.textContent = '📋';
+							button.style.cssText = "position: absolute; top: 5px; right: 10px; background: #007acc; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 12px; ";
+
+							const wrapper = document.createElement('div');
+							wrapper.style.position = 'relative';
+
+							pre.parentNode.insertBefore(wrapper, pre);
+							wrapper.appendChild(pre);
+							wrapper.appendChild(button);
+
+							button.onclick = () => {
+								navigator.clipboard.writeText(pre.innerText).then(() => {
+									button.textContent = '✅';
+									setTimeout(() => (button.textContent = '📋'), 1500);
+								});
+							};
+						});
+
 						chat.scrollTop = chat.scrollHeight;
 					}
 
