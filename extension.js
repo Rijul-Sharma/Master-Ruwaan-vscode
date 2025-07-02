@@ -3,6 +3,7 @@
 const vscode = require('vscode');
 const axios = require('axios');
 // require('dotenv').config();
+const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
@@ -50,7 +51,7 @@ function activate(context) {
 			{ enableScripts: true }
 		);
 
-		panel.webview.html = getChatWebviewHTML();
+		panel.webview.html = getChatWebviewHTML(context, panel.webview);
 
 		setTimeout(() => {
 			for (const msg of chatMessages.filter(m => m.role !== 'system')) {
@@ -249,240 +250,16 @@ function activate(context) {
 
 	context.subscriptions.push(openChat);
 
-	function getChatWebviewHTML() {
-		return `
-			<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<meta charset="UTF-8">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	function getChatWebviewHTML(context, webview) {
+		const htmlPath = vscode.Uri.file(path.join(context.extensionPath, 'media', 'webview.html'));
+		let html = fs.readFileSync(htmlPath.fsPath, 'utf8');
 
-				<!-- Highlight.js Theme CSS -->
-				<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+		const imageUri = webview.asWebviewUri(
+			vscode.Uri.file(path.join(context.extensionPath, 'assets', 'headerIcon.png'))
+		);
+		html = html.replace('{{imageSrc}}', imageUri.toString());
 
-				<!-- highlight.js script (fixed path) -->
-				<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
-
-				<!-- marked.js -->
-				<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-				<title>CodeHelp AI Chat</title>
-				<style>
-					body {
-						font-family: sans-serif;
-						margin: 0;
-						padding: 0;
-						background-color: #1e1e1e;
-						color: #ddd;
-						display: flex;
-						flex-direction: column;
-						height: 100vh;
-					}
-					#chat {
-						flex: 1;
-						overflow-y: auto;
-						padding: 1rem;
-					}
-					.message {
-						margin: 0.5rem 0;
-						padding: 0.7rem 0.5rem;
-						border-radius: 8px;
-						max-width: 80%;
-						width: fit-content;
-						word-wrap: break-word;
-						white-space: pre-wrap;
-						font-size: 15px;
-					}
-
-					.message * {
-						margin: 0;
-						padding: 0;
-					}
-
-					.message p {
-						margin: 0;
-						padding: 0;
-						line-height: 1.4; /* Or adjust as needed */
-						display: inline; /* This is key */
-					}
-
-					.message ul,
-					.message ol {
-						padding-left: 1.2em;
-						margin: 0.4em 0;
-						list-style-position: inside;
-					}
-
-					.message li {
-						margin-bottom: 0.3em;
-					}
-
-					.user {
-						background-color: #007acc;
-						color: white;
-						align-self: flex-end;
-						text-align: left;
-						margin-left: auto;
-					}
-					.assistant {
-						background-color: #333;
-						color: white;
-						align-self: flex-start;
-						margin-right: auto;
-					}
-					#input-area {
-						display: flex;
-						padding: 1rem;
-						border-top: 1px solid #444;
-					}
-					#userInput {
-						flex: 1;
-						padding: 0.5rem;
-						border-radius: 4px;
-						border: none;
-						outline: none;
-						background: #2a2a2a;
-						color: white;
-						resize: none; /* prevent manual resizing */
-						overflow-y: auto;
-						min-height: 40px;
-						max-height: 200px; /* optional limit */
-						box-sizing: border-box;
-					}
-					button {
-						height: 40px; /* fixed height */
-						align-self: flex-end; /* stays at bottom */
-						margin-left: 0.5rem;
-						background-color: #007acc;
-						color: white;
-						border: none;
-						padding: 0.5rem 1rem;
-						border-radius: 4px;
-						cursor: pointer;
-					}
-				</style>
-			</head>
-			<body>
-				<div id="chat"></div>
-				<div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
-					<button onclick="runAction('fix')">🛠 Fix Code</button>
-					<button onclick="runAction('explain')">💡 Explain Code</button>
-					<button onclick="runAction('refactor')">🧠 Refactor Code</button>
-					<button onclick="runAction('comment')">📝 Add Comments</button>
-				</div>
-				<div id="input-area">
-					<textarea  type="text" id="userInput" placeholder="Ask something..." /></textarea>
-					<button onclick="send()">Send</button>
-				</div>
-
-				<script>
-					const vscode = acquireVsCodeApi();
-					const chat = document.getElementById('chat');
-					const input = document.getElementById('userInput');
-
-					input.addEventListener('input', () => {
-						input.style.height = 'auto'; // reset height to shrink if needed
-						const newHeight = Math.min(input.scrollHeight, 200);
-						input.style.height = newHeight + 'px';
-					});
-
-					marked.setOptions({
-						highlight: function(code, lang) {
-							const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
-							return hljs.highlight(code, { language: validLang }).value;
-						}
-					});
-
-					function appendMessage(text, role) {
-						const div = document.createElement('div');
-						div.className = 'message ' + role;
-						div.innerHTML = marked.parse(text);
-						console.log(div.innerHTML)
-
-						chat.appendChild(div);
-
-						// Highlight code blocks
-						div.querySelectorAll('pre code').forEach((block) => {
-							hljs.highlightElement(block);
-						});
-						
-						div.querySelectorAll('pre').forEach(pre => {
-							const button = document.createElement('button');
-							button.textContent = '📋';
-							button.style.cssText = "position: absolute; top: 5px; right: 10px; background: #007acc; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 12px; ";
-
-							const wrapper = document.createElement('div');
-							wrapper.style.position = 'relative';
-
-							pre.parentNode.insertBefore(wrapper, pre);
-							wrapper.appendChild(pre);
-							wrapper.appendChild(button);
-
-							button.onclick = () => {
-								navigator.clipboard.writeText(pre.innerText).then(() => {
-									button.textContent = '✅';
-									setTimeout(() => (button.textContent = '📋'), 1500);
-								});
-							};
-						});
-
-						chat.scrollTop = chat.scrollHeight;
-					}
-
-					function appendThinking() {
-						const existing = document.getElementById('thinking');
-						if (existing) return; // don't add multiple
-
-						const div = document.createElement('div');
-						div.className = 'message assistant';
-						div.id = 'thinking';
-						div.textContent = 'Thinking... 🤔';
-						chat.appendChild(div);
-						chat.scrollTop = chat.scrollHeight;
-					}
-
-					
-					function removeThinking() {
-						const thinking = document.getElementById('thinking');
-						if (thinking) {
-							chat.removeChild(thinking);
-						}
-					}
-
-					function send() {
-						const text = input.value.trim();
-						if (!text) return;
-
-						appendMessage(text, 'user');
-
-						// document.getElementById('response').innerText = "Thinking... 🤔";
-						appendThinking();
-						vscode.postMessage({ type: 'prompt', value: text  });
-						input.value = '';
-					}
-
-					input.addEventListener('keydown', (e) => {
-						if (e.key === 'Enter' && !e.shiftKey) {
-							e.preventDefault(); // prevent newline
-							send();
-						}
-					});
-
-					window.addEventListener('message', event => {
-						const message = event.data;
-						if (message.type === 'response') {
-							removeThinking();
-							appendMessage(message.value, message.role || 'assistant');
-						}
-					});
-
-					function runAction(action) {
-						vscode.postMessage({ type: 'action', value: action });
-					}
-
-				</script>
-			</body>
-			</html>
-		`;
+		return html
 	}
 	
 
