@@ -254,10 +254,16 @@ function activate(context) {
 		const htmlPath = vscode.Uri.file(path.join(context.extensionPath, 'media', 'webview.html'));
 		let html = fs.readFileSync(htmlPath.fsPath, 'utf8');
 
-		const imageUri = webview.asWebviewUri(
+		const headerIconUri = webview.asWebviewUri(
 			vscode.Uri.file(path.join(context.extensionPath, 'assets', 'headerIcon.png'))
 		);
-		html = html.replace('{{imageSrc}}', imageUri.toString());
+		html = html.replace('{{headerIcon}}', headerIconUri.toString());
+
+		const headerBgUri = webview.asWebviewUri(
+			vscode.Uri.file(path.join(context.extensionPath, 'assets', 'headerBg.png'))
+		);
+
+		html = html.replace('{{headerBg}}', headerBgUri.toString());
 
 		return html
 	}
