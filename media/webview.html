@@ -227,6 +227,10 @@
             <div id="headerQuote"></div>
         </div>
     </div>
+    <div style="padding: 0.5rem 1rem;">
+        <button onclick="requestFileList()">📁 Add Context File</button>
+        <div id="context-files-info" style="font-size: 0.9rem; color: #aaa; margin-top: 0.25rem;"></div>
+    </div>
     <div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
         <button onclick="runAction('fix')">🛠 Fix Code</button>
         <button onclick="runAction('explain')">💡 Explain Code</button>
@@ -320,7 +324,11 @@
 
             // document.getElementById('response').innerText = "Thinking... 🤔";
             appendThinking();
-            vscode.postMessage({ type: 'prompt', value: text  });
+            vscode.postMessage({
+                type: 'prompt',
+                value: text,
+                contextFiles: selectedContextFiles || []
+            });
             input.value = '';
         }
 
@@ -336,6 +344,15 @@
             if (message.type === 'response') {
                 removeThinking();
                 appendMessage(message.value, message.role || 'assistant');
+            }
+
+            if (message.type === 'workspace-files') {
+                renderFilePickerModal(message.files);
+            }
+
+            if (message.type === 'context-files') {
+                selectedContextFiles = message.files;
+                updateContextFileInfo();
             }
         });
 
@@ -358,9 +375,98 @@
         setRandomQuote();
 
         function runAction(action) {
-            vscode.postMessage({ type: 'action', value: action });
+            vscode.postMessage({
+                type: 'action',
+                value: action,
+                contextFiles: selectedContextFiles || []
+            });
         }
 
+        function requestFileList() {
+            vscode.postMessage({ type: 'request-workspace-files' });
+        }
+
+        let selectedContextFiles = [];
+
+        function updateContextFileInfo() {
+            const info = document.getElementById('context-files-info');
+            if (selectedContextFiles.length === 0) {
+                info.textContent = 'No context files selected.';
+            } else {
+                info.textContent = 'Context: ' + selectedContextFiles.map(f => f.path).join(', ');
+            }
+        }
+
+        function renderFilePickerModal(fileList) {
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = 0;
+            modal.style.left = 0;
+            modal.style.right = 0;
+            modal.style.bottom = 0;
+            modal.style.background = 'rgba(0,0,0,0.7)';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.zIndex = 1000;
+
+            const box = document.createElement('div');
+            box.style.background = '#222';
+            box.style.padding = '1rem';
+            box.style.borderRadius = '8px';
+            box.style.maxHeight = '70vh';
+            box.style.width = '400px';
+            box.style.overflow = 'auto';
+            box.style.color = '#fff';
+
+            const search = document.createElement('input');
+            search.type = 'text';
+            search.placeholder = 'Search files...';
+            search.style.width = '100%';
+            search.style.marginBottom = '0.5rem';
+            search.style.padding = '0.25rem';
+
+            const list = document.createElement('div');
+            list.style.maxHeight = '50vh';
+            list.style.overflowY = 'auto';
+
+            function renderList(filter = '') {
+                list.innerHTML = '';
+                fileList
+                    .filter(f => f.toLowerCase().includes(filter.toLowerCase()))
+                    .forEach(f => {
+                        const item = document.createElement('label');
+                        item.style.display = 'block';
+                        item.style.marginBottom = '0.25rem';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = f;
+                        item.appendChild(checkbox);
+
+                        item.appendChild(document.createTextNode(' ' + f));
+                        list.appendChild(item);
+                    });
+            }
+
+            search.oninput = () => renderList(search.value);
+            renderList();
+
+            const submit = document.createElement('button');
+            submit.textContent = 'Add Selected Files';
+            submit.style.marginTop = '0.5rem';
+            submit.onclick = () => {
+                const selected = Array.from(list.querySelectorAll('input:checked')).map(c => c.value);
+                vscode.postMessage({ type: 'request-file-content', files: selected });
+                document.body.removeChild(modal);
+            };
+
+            box.appendChild(search);
+            box.appendChild(list);
+            box.appendChild(submit);
+            modal.appendChild(box);
+            document.body.appendChild(modal);
+        }
     </script>
 </body>
 </html>
