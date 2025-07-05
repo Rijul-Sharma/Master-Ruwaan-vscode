@@ -111,6 +111,7 @@
             box-shadow: inset 0 0 2px #222;
             text-shadow: 0 1px 1px #000;
             transition: background 0.3s;
+            min-height: 25px;
         }
 
         #action-buttons button:hover {
@@ -118,22 +119,23 @@
         }
 
         #input-area button {
-            background: #5c6f57;
-            font-family: 'Crimson Pro', serif;
-            color: #fffde9;
-            border-radius: 6px;
-            border: 1px solid #7c8f72;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            padding: 0.5rem 1rem;
+            background: linear-gradient(160deg, #394e39, #2e3b2e);
+            font-family: 'Cinzel Decorative', serif;
+            color: #e2dbc7;
+            border: 1px solid #5b6d55;
+            border-radius: 8px;
+            box-shadow: inset 0 0 2px #222, 0 2px 4px rgba(0,0,0,0.3);
+            padding: 0.4rem 1rem;
             margin-left: 0.5rem;
             cursor: pointer;
             transition: background 0.3s;
+            font-size: 15px;
+            text-shadow: 0 1px 1px #000;
             height: 58.2px;
-            margin-bottom: 0;
         }
 
         #input-area button:hover {
-            background: #6e8465;
+            background: linear-gradient(160deg, #4c604c, #394939);
         }
 
         button:hover {
@@ -215,6 +217,150 @@
             z-index: 1;
         }
 
+        #fileDropdownPanel {
+            display: none;
+            margin-top: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: linear-gradient(160deg, #222b22, #1a231a);
+            border: 1px solid #4e5f4e;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Crimson Pro', serif;
+            font-size: 14px;
+            color: #d8dcd5;
+        }
+
+        #fileSearchInput {
+            width: 100%;
+            padding: 0.5rem;
+            box-sizing: border-box;
+            margin-bottom: 0.75rem;
+            background: #2a312a;
+            color: #e0e6db;
+            border: 1px solid #5b6d55;
+            border-radius: 6px;
+            font-family: 'Crimson Pro', serif;
+            font-size: 14px;
+        }
+
+        #context-files-info {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 0.5rem;
+        }
+
+        .context-file-badge {
+            display: inline-block;
+            background: #2e3b2e;
+            color: #cfdacb;
+            padding: 3px 8px;
+            margin: 0 5px 5px 0;
+            border-radius: 5px;
+            font-size: 12px;
+            position: relative;
+            font-family: 'Crimson Pro', serif;
+        }
+        .context-file-badge span {
+            margin-left: 6px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .context-file-badge span:hover {
+            color: #fff;
+        }
+
+        #context-file-button {
+            background: linear-gradient(160deg, #2f382f, #232b23);
+            font-family: 'Cinzel Decorative', serif;
+            color: #dcd6c2;
+            border: 1px solid #4e5e4e;
+            border-radius: 8px;
+            box-shadow: inset 0 0 1px #1a1a1a, 0 1px 3px rgba(0, 0, 0, 0.25);
+            padding: 0.25rem 0.45rem;
+            font-size: 12px;
+            text-shadow: 0 1px 1px #000;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        #context-file-button:hover {
+            background: linear-gradient(160deg, #3d4a3d, #2c332c);
+        }
+
+        /* Custom styled checkbox */
+        #fileListContainer input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            background-color: #2f382f;
+            border: 1px solid #5b6d55;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            display: inline-block;
+            transition: background 0.2s ease;
+        }
+
+        #fileListContainer input[type="checkbox"]:checked {
+            background-color: #5b6d55;
+            box-shadow: inset 0 0 0 2px #2f382f;
+        }
+
+        #fileListContainer input[type="checkbox"]::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            width: 4px;
+            height: 8px;
+            border: solid #dcd6c2;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        #fileListContainer input[type="checkbox"]:checked::after {
+            opacity: 1;
+        }
+
+        #fileListContainer label {
+            font-family: 'Crimson Pro', serif;
+            font-size: 14px;
+            color: #dcd6c2;
+            background: #242c22;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        #fileListContainer label:hover {
+            background: #2d3a2d;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: rgba(50, 65, 50, 0.7);
+            color: #ddd;
+            border: none;
+            border-radius: 6px;
+            padding: 4px 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(80, 100, 80, 0.85);
+            transform: scale(1.1);
+        }
+
     </style>
 </head>
 <body>
@@ -223,13 +369,22 @@
             <div>
                 <img src="{{headerIcon}}" height="270px" alt="icon">
             </div>
-            <div id="headerLabel">Master Ruwan</div>
+            <div id="headerLabel">Master Ruwaan</div>
             <div id="headerQuote"></div>
         </div>
     </div>
-    <div style="padding: 0.5rem 1rem;">
-        <button onclick="requestFileList()">📁 Add Context File</button>
-        <div id="context-files-info" style="font-size: 0.9rem; color: #aaa; margin-top: 0.25rem;"></div>
+    <div style="padding: 0.15rem 1rem;">
+        <button id="context-file-button" onclick="requestFileList()">📁 Add Context Files</button>
+        <!-- <div id="context-files-info" style="font-size: 0.9rem; color: #aaa; margin-top: 0.25rem;"></div> -->
+
+        <!-- The dropdown panel -->
+        <div id="fileDropdownPanel">
+            <input type="text" id="fileSearchInput" placeholder="Search files...">
+            <div id="fileListContainer" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Selected file badges -->
+        <div id="context-files-info"></div>
     </div>
     <div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
         <button onclick="runAction('fix')">🛠 Fix Code</button>
@@ -275,8 +430,20 @@
             
             div.querySelectorAll('pre').forEach(pre => {
                 const button = document.createElement('button');
-                button.textContent = '📋';
-                button.style.cssText = "position: absolute; top: 5px; right: 10px; background: #007acc; color: white; border: none; padding: 2px 6px; border-radius: 3px; cursor: pointer; font-size: 12px; ";
+                button.className = 'copy-button';
+
+                const img = document.createElement('img');
+                img.src = '{{copyBtn}}';
+                img.alt = 'Copy';
+                img.style.width = '14px';
+                img.style.height = '14px';
+                img.style.verticalAlign = 'middle';
+                img.style.marginRight = '4px';
+
+                button.append(img);
+                button.appendChild(document.createTextNode('Copy'));
+
+                // button.textContent = '📋 Copy';
 
                 const wrapper = document.createElement('div');
                 wrapper.style.position = 'relative';
@@ -287,8 +454,12 @@
 
                 button.onclick = () => {
                     navigator.clipboard.writeText(pre.innerText).then(() => {
-                        button.textContent = '✅';
-                        setTimeout(() => (button.textContent = '📋'), 1500);
+                        button.textContent = '✅ Copied';
+                        setTimeout(() => {
+                            button.innerHTML = '';
+                            button.appendChild(img.cloneNode(true));
+                            button.appendChild(document.createTextNode('Copy'));
+                        }, 1500);
                     });
                 };
             });
@@ -339,6 +510,101 @@
             }
         });
 
+        let allWorkspaceFiles = [];
+        let workspaceFiles = [];
+        let selectedContextFiles = [];
+        let fileDropdownOpen = false;
+
+        function requestFileList() {
+            if (!fileDropdownOpen) {
+                vscode.postMessage({ type: 'request-workspace-files' });
+            } else {
+                closeFileDropdown();
+            }
+        }
+
+        function updateContextFileInfo() {
+            const container = document.getElementById('context-files-info');
+            container.innerHTML = '';
+
+            selectedContextFiles.forEach(f => {
+                const badge = document.createElement('span');
+                badge.textContent = f.path.split('/').pop();
+                badge.className = 'context-file-badge';
+
+                const close = document.createElement('span');
+                close.textContent = '✖';
+                close.style.cssText = 'margin-left: 6px; cursor: pointer; color: #aaa;';
+                close.onclick = () => {
+                    selectedContextFiles = selectedContextFiles.filter(x => x.path !== f.path);
+                    updateContextFileInfo();
+                    if (fileDropdownOpen) {
+                        renderFileDropdown(getFilteredFiles());
+                    }
+                };
+
+                badge.appendChild(close);
+                container.appendChild(badge);
+            });
+        }
+
+        function renderFileDropdown(filesToShow) {
+            const panel = document.getElementById('fileDropdownPanel');
+            const list = document.getElementById('fileListContainer');
+            const button = document.querySelector('button[onclick="requestFileList()"]');
+
+            list.innerHTML = '';
+            filesToShow.forEach(file => {
+                const isChecked = selectedContextFiles.some(f => f.path === file);
+
+                const item = document.createElement('label');
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.gap = '0.5rem';
+                item.style.marginBottom = '0.3rem';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = file;
+                checkbox.checked = isChecked;
+                checkbox.onchange = () => {
+                    if (checkbox.checked) {
+                        if (!selectedContextFiles.find(f => f.path === file)) {
+                            selectedContextFiles.push({ path: file });
+                        }
+                    } else {
+                        selectedContextFiles = selectedContextFiles.filter(f => f.path !== file);
+                    }
+                    updateContextFileInfo();
+                    // Re-render to keep checkboxes in sync
+                    renderFileDropdown(getFilteredFiles());
+                };
+
+                item.appendChild(checkbox);
+                item.appendChild(document.createTextNode(file));
+                list.appendChild(item);
+            });
+
+            panel.style.display = 'block';
+            button.textContent = '✓  Done';
+            fileDropdownOpen = true;
+        }
+        
+        function getFilteredFiles() {
+            const query = document.getElementById('fileSearchInput').value.toLowerCase();
+            return allWorkspaceFiles.filter(f => f.toLowerCase().includes(query));
+        }
+
+        document.getElementById('fileSearchInput').oninput = () => {
+            renderFileDropdown(getFilteredFiles());
+        };
+
+        function closeFileDropdown() {
+            document.getElementById('fileDropdownPanel').style.display = 'none';
+            document.querySelector('button[onclick="requestFileList()"]').textContent = '📁 Add Context Files';
+            fileDropdownOpen = false;
+        }
+
         window.addEventListener('message', event => {
             const message = event.data;
             if (message.type === 'response') {
@@ -347,7 +613,8 @@
             }
 
             if (message.type === 'workspace-files') {
-                renderFilePickerModal(message.files);
+                allWorkspaceFiles = message.files;
+                renderFileDropdown(getFilteredFiles());
             }
 
             if (message.type === 'context-files') {
@@ -380,92 +647,6 @@
                 value: action,
                 contextFiles: selectedContextFiles || []
             });
-        }
-
-        function requestFileList() {
-            vscode.postMessage({ type: 'request-workspace-files' });
-        }
-
-        let selectedContextFiles = [];
-
-        function updateContextFileInfo() {
-            const info = document.getElementById('context-files-info');
-            if (selectedContextFiles.length === 0) {
-                info.textContent = 'No context files selected.';
-            } else {
-                info.textContent = 'Context: ' + selectedContextFiles.map(f => f.path).join(', ');
-            }
-        }
-
-        function renderFilePickerModal(fileList) {
-            const modal = document.createElement('div');
-            modal.style.position = 'fixed';
-            modal.style.top = 0;
-            modal.style.left = 0;
-            modal.style.right = 0;
-            modal.style.bottom = 0;
-            modal.style.background = 'rgba(0,0,0,0.7)';
-            modal.style.display = 'flex';
-            modal.style.alignItems = 'center';
-            modal.style.justifyContent = 'center';
-            modal.style.zIndex = 1000;
-
-            const box = document.createElement('div');
-            box.style.background = '#222';
-            box.style.padding = '1rem';
-            box.style.borderRadius = '8px';
-            box.style.maxHeight = '70vh';
-            box.style.width = '400px';
-            box.style.overflow = 'auto';
-            box.style.color = '#fff';
-
-            const search = document.createElement('input');
-            search.type = 'text';
-            search.placeholder = 'Search files...';
-            search.style.width = '100%';
-            search.style.marginBottom = '0.5rem';
-            search.style.padding = '0.25rem';
-
-            const list = document.createElement('div');
-            list.style.maxHeight = '50vh';
-            list.style.overflowY = 'auto';
-
-            function renderList(filter = '') {
-                list.innerHTML = '';
-                fileList
-                    .filter(f => f.toLowerCase().includes(filter.toLowerCase()))
-                    .forEach(f => {
-                        const item = document.createElement('label');
-                        item.style.display = 'block';
-                        item.style.marginBottom = '0.25rem';
-
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.value = f;
-                        item.appendChild(checkbox);
-
-                        item.appendChild(document.createTextNode(' ' + f));
-                        list.appendChild(item);
-                    });
-            }
-
-            search.oninput = () => renderList(search.value);
-            renderList();
-
-            const submit = document.createElement('button');
-            submit.textContent = 'Add Selected Files';
-            submit.style.marginTop = '0.5rem';
-            submit.onclick = () => {
-                const selected = Array.from(list.querySelectorAll('input:checked')).map(c => c.value);
-                vscode.postMessage({ type: 'request-file-content', files: selected });
-                document.body.removeChild(modal);
-            };
-
-            box.appendChild(search);
-            box.appendChild(list);
-            box.appendChild(submit);
-            modal.appendChild(box);
-            document.body.appendChild(modal);
         }
     </script>
 </body>

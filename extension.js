@@ -270,6 +270,11 @@ function activate(context) {
 
 		html = html.replace('{{headerBg}}', headerBgUri.toString());
 
+		const copyBtnUri = webview.asWebviewUri(
+			vscode.Uri.file(path.join(context.extensionPath, 'assets', 'copyBtn.svg'))
+		)
+		html = html.replace('{{copyBtn}}', copyBtnUri.toString());
+
 		return html
 	}
 
