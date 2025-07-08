@@ -14,8 +14,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
  * @param {vscode.ExtensionContext} context
  */	
 function activate(context) {
+	// Add this variable at the top-level scope of activate (before function activate)
+	let chatPanel = null;
 
-	
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	// console.log('Congratulations, your extension "codehelp" is now active!');
@@ -55,18 +56,25 @@ function activate(context) {
 	}
 
 	const openChat = vscode.commands.registerCommand('codehelp.openChat', () => {
-		const panel = vscode.window.createWebviewPanel(
+		// Prevent multiple chat panels
+		if (chatPanel) {
+			vscode.window.showInformationMessage('Chat is already open!');
+			chatPanel.reveal(); // Optionally bring the existing panel to front
+			return;
+		}
+
+		chatPanel = vscode.window.createWebviewPanel(
 			'codeHelpChatPanel',
 			'CodeHelp AI Chat',
 			vscode.ViewColumn.Beside,
 			{ enableScripts: true }
 		);
 
-		panel.webview.html = getChatWebviewHTML(context, panel.webview);
+		chatPanel.webview.html = getChatWebviewHTML(context, chatPanel.webview);
 
 		setTimeout(() => {
 			for (const msg of chatMessages.filter(m => m.role !== 'system')) {
-				panel.webview.postMessage({
+				chatPanel.webview.postMessage({
 					type: 'response',
 					value: msg.content,
 					role: msg.role
@@ -100,19 +108,19 @@ function activate(context) {
 				const aiResponse = response.data.choices[0].message.content.trim();
 				chatMessages.push({ role: 'assistant', content: aiResponse });
 
-				panel.webview.postMessage({
+				chatPanel.webview.postMessage({
 					type: 'response',
 					value: aiResponse
 				});
 			} catch (err) {
-				panel.webview.postMessage({
+				chatPanel.webview.postMessage({
 					type: 'response',
 					value: "❌ Error: " + (err.response?.data?.error?.message || err.message)
 				});
 			}
 		}
 		
-		panel.webview.onDidReceiveMessage(
+		chatPanel.webview.onDidReceiveMessage(
 			async message => {
 				if (message.type === 'prompt') {
 					const userPrompt = message.value;
@@ -228,7 +236,7 @@ function activate(context) {
 					chatMessages.push({ role: 'user', content: fullPrompt });
 					context.workspaceState.update(CHAT_KEY, chatMessages);
 
-					panel.webview.postMessage({
+					chatPanel.webview.postMessage({
 						type: 'response',
 						value: displayMessage,
 						role: 'user'
@@ -239,7 +247,7 @@ function activate(context) {
 
 				if (message.type === 'request-workspace-files') {
 					const files = await getWorkspaceFiles();
-					panel.webview.postMessage({ type: 'workspace-files', files});
+					chatPanel.webview.postMessage({ type: 'workspace-files', files});
 				}
 
 				if (message.type === 'request-file-content') {
@@ -256,12 +264,17 @@ function activate(context) {
 
 					// console.log(results, 'ye hain results');
 
-					panel.webview.postMessage({ type : 'context-files', files: results});
+					chatPanel.webview.postMessage({ type : 'context-files', files: results});
 				}
 			},
 			undefined,
 			context.subscriptions
 		);
+
+		// When the panel is closed, reset chatPanel
+		chatPanel.onDidDispose(() => {
+			chatPanel = null;
+		}, null, context.subscriptions);
 	});
 
 	context.subscriptions.push(openChat);
@@ -496,7 +509,7 @@ function activate(context) {
 
 	context.subscriptions.push({
 	dispose: () => {
-		context.workspaceState.update(CHAT_KEY, undefined); // Clear on shutdown
+		// context.workspaceState.update(CHAT_KEY, undefined); // Clear on shutdown
 	}
 	});
 }
