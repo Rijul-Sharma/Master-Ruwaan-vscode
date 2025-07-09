@@ -16,7 +16,7 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 function activate(context) {
 	// Add this variable at the top-level scope of activate (before function activate)
 	let chatPanel = null;
-
+	
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	// console.log('Congratulations, your extension "codehelp" is now active!');
@@ -90,10 +90,11 @@ function activate(context) {
 
 		async function sendPrompt(chatMessages) {
 			try {
+				// console.log('Sending to Groq:', JSON.stringify(chatMessages, null, 2));
 				const response = await axios.post(
 					'https://api.groq.com/openai/v1/chat/completions',
 					{
-						model: 'llama3-70b-8192',
+						model: 'meta-llama/llama-4-scout-17b-16e-instruct',
 						messages: chatMessages,
 						temperature: 0.7
 					},
@@ -125,22 +126,31 @@ function activate(context) {
 				if (message.type === 'prompt') {
 					const userPrompt = message.value;
 					const contextFiles = message.contextFiles;
+					const image = message.image; // { base64, type } or undefined
 
 					let fullPrompt = '';
 
 					if (contextFiles && contextFiles.length > 0) {
 						fullPrompt += `Here are some relevant files for context:\n\n`;
 						for (const file of contextFiles) {
-							fullPrompt += `File: ${file.path}\n\`\`\`\n${file.content}\n\`\`\`\n\n`;
+							fullPrompt += `File: ${file.path}\n\n${file.content}\n\n`;
 						}
 					}
 
 					fullPrompt += userPrompt;
 
-					// 🧠 Add user message to chat history
-					// chatHistory.push({ role: 'user', content: userPrompt });
-
-					chatMessages.push({ role: 'user', content: fullPrompt});
+					// If image is present, add it as an additional context message
+					if (image && image.base64 && image.type) {
+						chatMessages.push({
+							role: 'user',
+							content: [
+								{ type: 'text', text: fullPrompt },
+								{ type: 'image_url', image_url: { url: `data:image/${image.type};base64,${image.base64}` } }
+							]
+						});
+					} else {
+						chatMessages.push({ role: 'user', content: fullPrompt });
+					}
 					context.workspaceState.update(CHAT_KEY, chatMessages);
 					await sendPrompt(chatMessages);
 				}

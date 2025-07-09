@@ -390,6 +390,12 @@
         <!-- Selected file badges -->
         <div id="context-files-info"></div>
     </div>
+    <!-- Image upload area -->
+    <div id="image-upload-area" style="display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 1rem 0.5rem 1rem;">
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        <button id="imageUploadBtn" title="Attach Image" type="button">🖼️ Add Image</button>
+        <span id="imagePreview" style="display:none; align-items: center; gap: 0.3rem;"></span>
+    </div>
     <div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
         <button onclick="runAction('fix')">🛠 Fix Code</button>
         <button onclick="runAction('explain')">💡 Explain Code</button>
@@ -491,6 +497,64 @@
             }
         }
 
+        // --- Image Upload Logic ---
+        let selectedImage = null; // { base64, type, name }
+
+        const imageInput = document.getElementById('imageInput');
+        const imageUploadBtn = document.getElementById('imageUploadBtn');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageUploadBtn.onclick = () => imageInput.click();
+
+        imageInput.onchange = () => {
+            const file = imageInput.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImage = {
+                    base64: e.target.result.split(',')[1],
+                    type: file.type.split('/')[1] || 'png',
+                    name: file.name
+                };
+                showImagePreview();
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function showImagePreview() {
+            imagePreview.innerHTML = '';
+            if (selectedImage) {
+                // Show thumbnail if image, else just filename
+                if (['png','jpg','jpeg','gif','webp','bmp'].includes(selectedImage.type.toLowerCase())) {
+                    const img = document.createElement('img');
+                    img.src = `data:image/${selectedImage.type};base64,${selectedImage.base64}`;
+                    img.style.maxWidth = '32px';
+                    img.style.maxHeight = '32px';
+                    img.style.verticalAlign = 'middle';
+                    img.style.marginRight = '6px';
+                    imagePreview.appendChild(img);
+                }
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = selectedImage.name;
+                imagePreview.appendChild(nameSpan);
+
+                const clearBtn = document.createElement('button');
+                clearBtn.textContent = '✖';
+                clearBtn.title = 'Remove image';
+                clearBtn.style.marginLeft = '6px';
+                clearBtn.onclick = () => {
+                    selectedImage = null;
+                    imageInput.value = '';
+                    imagePreview.style.display = 'none';
+                };
+                imagePreview.appendChild(clearBtn);
+                imagePreview.style.display = 'inline-flex';
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        }
+
+        // --- Modify send() to include image ---
         function send() {
             const text = input.value.trim();
             if (!text) return;
@@ -499,12 +563,20 @@
 
             // document.getElementById('response').innerText = "Thinking... 🤔";
             appendThinking();
+
+            // Send image if present
             vscode.postMessage({
                 type: 'prompt',
                 value: text,
-                contextFiles: selectedContextFiles || []
+                contextFiles: selectedContextFiles || [],
+                image: selectedImage ? { base64: selectedImage.base64, type: selectedImage.type } : undefined
             });
+
             input.value = '';
+            // Optionally clear image after sending
+            selectedImage = null;
+            imageInput.value = '';
+            imagePreview.style.display = 'none';
         }
 
         input.addEventListener('keydown', (e) => {
