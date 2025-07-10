@@ -309,6 +309,11 @@ function activate(context) {
 		)
 		html = html.replace('{{copyBtn}}', copyBtnUri.toString());
 
+		const addImageUri = webview.asWebviewUri(
+			vscode.Uri.file(path.join(context.extensionPath, 'assets', 'addImage.svg'))
+		);
+		html = html.replace('{{addImage}}', addImageUri.toString());
+
 		return html
 	}
 

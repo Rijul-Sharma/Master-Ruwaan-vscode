@@ -365,6 +365,45 @@
             transform: scale(1.1);
         }
 
+        #imageUploadBtn {
+            background: rgba(220, 220, 220, 0.12);
+            border: 1px solid #5b6d55;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+            margin-left: 0.5rem;
+            padding: 0px !important;
+        }
+        #imageUploadBtn:hover {
+            background: rgba(220, 220, 220, 0.22);
+            box-shadow: 0 2px 8px rgba(47, 208, 116, 0.15);
+        }
+        #imageUploadBtn img {
+            width: 24px;
+            height: 24px;
+            opacity: 0.92;
+            /* filter: drop-shadow(0 0 2px #2fd07466); */
+            transition: opacity 0.2s, filter 0.2s;
+        }
+        #imageUploadBtn:hover img {
+            opacity: 1;
+            /* filter: drop-shadow(0 0 6px #2fd074cc); */
+        }
+
+        .image-filename {
+            max-width: 120px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
     </style>
 </head>
 <body>
@@ -390,21 +429,20 @@
         <!-- Selected file badges -->
         <div id="context-files-info"></div>
     </div>
-    <!-- Image upload area -->
-    <div id="image-upload-area" style="display: flex; align-items: center; gap: 0.5rem; margin: 0.5rem 1rem 0.5rem 1rem;">
-        <input type="file" id="imageInput" accept="image/*" style="display: none;">
-        <button id="imageUploadBtn" title="Attach Image" type="button">🖼️ Add Image</button>
-        <span id="imagePreview" style="display:none; align-items: center; gap: 0.3rem;"></span>
-    </div>
     <div id="action-buttons" style="display: flex; gap: 0.5rem; padding: 0.5rem 1rem; border-top: 1px solid #444; border-bottom: 1px solid #444;">
         <button onclick="runAction('fix')">🛠 Fix Code</button>
         <button onclick="runAction('explain')">💡 Explain Code</button>
         <button onclick="runAction('refactor')">🧠 Refactor Code</button>
         <button onclick="runAction('comment')">📝 Add Comments</button>
     </div>
-    <div id="input-area">
-        <textarea  type="text" id="userInput" placeholder="Ask something..." /></textarea>
-        <button onclick="send()">Send</button>
+    <span id="imagePreview" style="display:none; align-items: center; gap: 0.3rem; margin-left: 1rem; margin-top: 0.4rem; margin-bottom: 0.4rem;"></span>
+    <div id="input-area" style="display: flex; align-items: center; padding: 1rem; border-top: 1px solid #444;">
+        <textarea type="text" id="userInput" placeholder="Ask something..." style="flex: 1;"></textarea>
+        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+        <button id="imageUploadBtn" title="Attach Image" type="button">
+            <img src="{{addImage}}" alt="Add Image" />
+        </button>
+        <button onclick="send()" style="margin-left: 0.5rem;">Send</button>
     </div>
 
     <script>
@@ -536,6 +574,7 @@
                 }
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = selectedImage.name;
+                nameSpan.className = 'image-filename';
                 imagePreview.appendChild(nameSpan);
 
                 const clearBtn = document.createElement('button');
