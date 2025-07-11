@@ -1,7 +1,7 @@
 {
-  "name": "codehelp",
-  "displayName": "CodeHelp",
-  "description": "AI assistant for explaining and fixing code",
+  "name": "master-ruwaan",
+  "displayName": "Master Ruwaan",
+  "description": "A VS Code extension to chat with Master Ruwaan, your AI coding mentor.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.100.0"
@@ -16,26 +16,14 @@
   "contributes": {
     "commands": [
       {
-        "command": "codehelp.explainSelectedCode",
-        "title": "Explain Selected Code"
-      },
-      {
-        "command": "codehelp.explainInWebView",
-        "title": "Explain Code (WebView)"
-      },
-      {
-        "command": "codehelp.fixSelectedCode",
-        "title": "Fix Selected Code (WebView)"
-      },
-      {
-        "command": "codehelp.openChat",
+        "command": "master-ruwaan.openChat",
         "title": "📜 Ask Master Ruwaan"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "codehelp.openChat",
+          "command": "master-ruwaan.openChat",
           "when": "editorTextFocus",
           "group": "navigation"
         }

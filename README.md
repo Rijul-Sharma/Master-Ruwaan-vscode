@@ -1,6 +1,6 @@
-# codehelp README
+# master-ruwaan README
 
-This is the README for your extension "codehelp". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "master-ruwaan". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

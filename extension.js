@@ -20,7 +20,7 @@ function activate(context) {
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	// console.log('Congratulations, your extension "codehelp" is now active!');
-	console.log('CodeHelp with Groq is active!');
+	console.log('Master Ruwaan with Groq is active!');
 	// console.log('Groq API Key:', process.env.GROQ_API_KEY);
 	
 	
@@ -32,7 +32,7 @@ function activate(context) {
 
 	// context.subscriptions.push(statusBarButton);
 
-	const CHAT_KEY = 'codehelp.chatHistory';
+	const CHAT_KEY = 'master-ruwaan.chatHistory';
 	context.workspaceState.update(CHAT_KEY, undefined);
 	// let chatMessages = context.workspaceState.get(CHAT_KEY, []);
 	let chatMessages = context.workspaceState.get(CHAT_KEY);
@@ -55,7 +55,7 @@ function activate(context) {
 	context.workspaceState.update(CHAT_KEY, chatMessages);
 	}
 
-	const openChat = vscode.commands.registerCommand('codehelp.openChat', () => {
+	const openChat = vscode.commands.registerCommand('master-ruwaan.openChat', () => {
 		// Prevent multiple chat panels
 		if (chatPanel) {
 			vscode.window.showInformationMessage('Chat is already open!');
@@ -64,8 +64,8 @@ function activate(context) {
 		}
 
 		chatPanel = vscode.window.createWebviewPanel(
-			'codeHelpChatPanel',
-			'CodeHelp AI Chat',
+			'master-ruwaanChatPanel',
+			'Master Ruwaan Chat',
 			vscode.ViewColumn.Beside,
 			{ enableScripts: true }
 		);
