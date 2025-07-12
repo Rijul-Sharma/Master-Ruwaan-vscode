@@ -22,15 +22,6 @@ function activate(context) {
 	// console.log('Congratulations, your extension "codehelp" is now active!');
 	console.log('Master Ruwaan with Groq is active!');
 	// console.log('Groq API Key:', process.env.GROQ_API_KEY);
-	
-	
-	// const statusBarButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-	// statusBarButton.command = 'codehelp.openChat';
-	// statusBarButton.text = '🤖 CodeHelp AI';
-	// statusBarButton.tooltip = 'Open CodeHelp Chat';
-	// statusBarButton.show();
-
-	// context.subscriptions.push(statusBarButton);
 
 	const CHAT_KEY = 'master-ruwaan.chatHistory';
 	context.workspaceState.update(CHAT_KEY, undefined);
@@ -82,44 +73,57 @@ function activate(context) {
 			}
 		}, 100);
 
-		// 💾 In-memory message history (removed coz we are using chatMessages to persist chat across session and will use the same for api calls)
-		// const chatHistory = [
-		// 	// { role: 'system', content: 'You are a helpful coding assistant. Keep replies short and useful.' }
-		// 	{ role: 'system', content: 'You are a helpful developer assistant.' }
-		// ];
-
-		async function sendPrompt(chatMessages) {
-			try {
-				// console.log('Sending to Groq:', JSON.stringify(chatMessages, null, 2));
-				const response = await axios.post(
-					'https://api.groq.com/openai/v1/chat/completions',
-					{
-						model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-						messages: chatMessages,
-						temperature: 0.7
-					},
-					{
-						headers: {
-							'Content-Type': 'application/json',
-							'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
-						}
-					}
-				);
-
-				const aiResponse = response.data.choices[0].message.content.trim();
-				chatMessages.push({ role: 'assistant', content: aiResponse });
-
-				chatPanel.webview.postMessage({
-					type: 'response',
-					value: aiResponse
-				});
-			} catch (err) {
-				chatPanel.webview.postMessage({
-					type: 'response',
-					value: "❌ Error: " + (err.response?.data?.error?.message || err.message)
-				});
-			}
+async function sendPrompt(chatMessages) {
+	try {
+		// Get API key from VS Code settings
+		const config = vscode.workspace.getConfiguration('master-ruwaan');
+		const groqApiKey = config.get('groqApiKey');
+		if (!groqApiKey) {
+			vscode.window.showWarningMessage('Please set your Groq API Key in the extension settings (master-ruwaan.groqApiKey) to use Master Ruwaan.');
+			chatPanel.webview.postMessage({
+				type: 'response',
+				value: 'Master Ruwaan whispers: "Young one, the forest cannot answer without your Groq API key. Please plant it in the extension settings, and clarity will follow."'
+			});
+			return;
 		}
+		const response = await axios.post(
+			'https://api.groq.com/openai/v1/chat/completions',
+			{
+				model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+				messages: chatMessages,
+				temperature: 0.7
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${groqApiKey}`
+				}
+			}
+		);
+
+		const aiResponse = response.data.choices[0].message.content.trim();
+		chatMessages.push({ role: 'assistant', content: aiResponse });
+
+		chatPanel.webview.postMessage({
+			type: 'response',
+			value: aiResponse
+		});
+	} catch (err) {
+		let ruwaanError = err.response?.data?.error?.message || err.message;
+		let ruwaanMsg = '';
+		if (err.response?.status === 429) { 
+			ruwaanMsg = '*Master Ruwaan closes his eyes* "Patience, student. The forest needs time to breathe between your questions. Return after a short pause, and wisdom will flow again."';
+		} else if (ruwaanError && /key|token|unauthorized|401|invalid/i.test(ruwaanError)) {
+			ruwaanMsg = 'Master Ruwaan murmurs: "The key you have given does not open the gates, student. Please check your Groq API key and try again."';
+		} else {
+			ruwaanMsg = `Master Ruwaan ponders: "${ruwaanError || 'An unknown error has occurred.'}"`;
+		}
+		chatPanel.webview.postMessage({
+			type: 'response',
+			value: ruwaanMsg
+		});
+	}
+}
 		
 		chatPanel.webview.onDidReceiveMessage(
 			async message => {

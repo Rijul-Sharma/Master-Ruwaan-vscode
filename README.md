@@ -1,65 +1,100 @@
-# master-ruwaan README
+# Master Ruwaan — Your AI Coding Mentor for VS Code
 
-This is the README for your extension "master-ruwaan". After writing up a brief description, we recommend including the following sections.
-
-## Features
-
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+**Master Ruwaan** is a VS Code extension that brings a serene, wise AI mentor into your coding environment. Ask questions, get code explanations, refactorings, and fixes—all with the gentle guidance of a digital forest sage.
 
 ---
 
-## Working with Markdown
+## ✨ Features
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+- **Conversational AI Chat**: Open a persistent chat panel and talk to Master Ruwaan about your code, bugs, or design questions.
+- **Code Actions**: Select code and ask Ruwaan to fix, explain, refactor, or comment—instantly, with a single click.
+- **Contextual Understanding**: Add files from your project as context. Ruwaan’s advice becomes as deep as the forest itself.
+- **Image Support**: Attach screenshots or diagrams to your questions—let Ruwaan see what you see.
+- **Persistent History**: All your questions and answers are saved and beautifully rendered in the chat panel.
+- **Modern, Themed UI**: Enjoy a calm, forest-inspired interface with custom fonts and smooth animations.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
+---
 
-## For more information
+## 🚀 Getting Started
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+1. **Install the Extension**
+   - Search for `Master Ruwaan` in the VS Code Marketplace and install it.
 
-**Enjoy!**
+2. **Set Your Groq API Key**
+   - Open VS Code settings (`Ctrl+,` or `Cmd+,`), search for `Master Ruwaan`, and paste your [Groq API key](https://console.groq.com/) into the `Groq API Key` field.
+
+3. **Open the Chat**
+   - Use the command palette (`Ctrl+Shift+P` or `Cmd+Shift+P`) and run `Ask Master Ruwaan`.
+   - Or, click the chat icon in the editor title bar.
+
+4. **Start Asking!**
+   - Type your question, select code to get context-aware help, or add files/images for deeper understanding.
+
+---
+
+## ⚙️ Extension Settings
+
+This extension contributes the following settings:
+
+- `master-ruwaan.groqApiKey`: Your Groq API Key. Required for all AI features.
+
+---
+
+## 🧑‍💻 Usage Tips
+
+- **Code Selection**: Select code in the editor, then open the chat to get focused help.
+- **File Context**: Add relevant files to your question for more accurate answers.
+- **Image Attachments**: Use the image button in the chat to upload screenshots or diagrams.
+- **Persistent Chat**: All your conversations are saved for your session.
+
+---
+
+## 📝 Requirements
+
+- Visual Studio Code v1.100.0 or higher
+- A [Groq API key](https://console.groq.com/) (free tier available)
+- Internet connection
+
+---
+
+## 🐞 Known Issues
+
+- Only supports the Groq API (no OpenAI or other providers yet).
+- If you hit the Groq rate limit, you’ll see a gentle message from Master Ruwaan—just wait a moment and try again.
+- Some advanced code actions may not work perfectly for all languages.
+
+---
+
+## 📦 Development & Contributing
+
+1. Clone this repo and run `npm install` in the root folder.
+2. Press `F5` in VS Code to launch the extension development host.
+3. The main extension code is in `extension.js`.
+<!-- 4. The landing page (for the web demo) is in `landing-page/`. -->
+
+PRs and suggestions are welcome!
+
+---
+
+## 📜 License
+
+MIT
+
+---
+
+## 🙋 FAQ
+
+**Q: Is my code or chat data sent anywhere except Groq?**
+A: No. All requests go directly from your machine to the Groq API.
+
+**Q: Can I use my own OpenAI key?**
+A: Not yet—only Groq is supported for now.
+
+**Q: Is this extension free?**
+A: Yes, but you need a (free) Groq API key.
+
+---
+
+## About Master Ruwaan
+
+Master Ruwaan is a digital forest sage—calm, wise, and focused. He helps you write, fix, and understand code with clarity and patience. If you ever feel lost, just ask: “What is your story, Master Ruwaan?”

@@ -1,8 +1,14 @@
 {
   "name": "master-ruwaan",
   "displayName": "Master Ruwaan",
+  "icon": "assets/headerIcon.png",
+  "publisher": "rijul-sharma",
   "description": "A VS Code extension to chat with Master Ruwaan, your AI coding mentor.",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rijul-Sharma/Master-Ruwaan-vscode.git"
+  },
   "engines": {
     "vscode": "^1.100.0"
   },
@@ -28,6 +34,17 @@
           "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Master Ruwaan Settings",
+      "properties": {
+        "master-ruwaan.groqApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your Groq API Key for Master Ruwaan. Get it from https://console.groq.com/ and paste here."
+        }
+      }
     }
   },
   "scripts": {
