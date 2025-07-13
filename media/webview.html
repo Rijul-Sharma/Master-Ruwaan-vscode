@@ -764,5 +764,11 @@
             });
         }
     </script>
+    <!-- Notify extension that the webview is ready (for chat history restore) -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            vscode.postMessage({ type: 'webview-ready' });
+        });
+    </script>
 </body>
 </html>

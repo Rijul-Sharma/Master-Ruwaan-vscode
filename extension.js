@@ -63,15 +63,6 @@ function activate(context) {
 
 		chatPanel.webview.html = getChatWebviewHTML(context, chatPanel.webview);
 
-		setTimeout(() => {
-			for (const msg of chatMessages.filter(m => m.role !== 'system')) {
-				chatPanel.webview.postMessage({
-					type: 'response',
-					value: msg.content,
-					role: msg.role
-				});
-			}
-		}, 100);
 
 async function sendPrompt(chatMessages) {
 	try {
@@ -137,7 +128,15 @@ async function sendPrompt(chatMessages) {
 					if (contextFiles && contextFiles.length > 0) {
 						fullPrompt += `Here are some relevant files for context:\n\n`;
 						for (const file of contextFiles) {
-							fullPrompt += `File: ${file.path}\n\n${file.content}\n\n`;
+							const fileUri = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, file.path);
+							let fileContent = '';
+							try {
+								const contentBytes = await vscode.workspace.fs.readFile(fileUri);
+								fileContent = Buffer.from(contentBytes).toString('utf8');
+							} catch (e) {
+								fileContent = '[Could not read file]';
+							}
+							fullPrompt += `File: ${file.path}\n\n${fileContent}\n\n`;
 						}
 					}
 
@@ -279,6 +278,15 @@ async function sendPrompt(chatMessages) {
 					// console.log(results, 'ye hain results');
 
 					chatPanel.webview.postMessage({ type : 'context-files', files: results});
+				}
+				if (message.type === 'webview-ready') {
+					for (const msg of chatMessages.filter(m => m.role !== 'system')) {
+						chatPanel.webview.postMessage({
+							type: 'response',
+							value: msg.content,
+							role: msg.role
+						});
+					}
 				}
 			},
 			undefined,
