@@ -6,4 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.2] - 2025-07-13
+### Fixed
+- Minor bug fixes and stability improvements.
+
+## [0.0.1] - 2025-07-12
 - Initial release

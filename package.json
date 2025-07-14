@@ -4,7 +4,7 @@
   "icon": "assets/headerIcon.png",
   "publisher": "rijul-sharma",
   "description": "A VS Code extension to chat with Master Ruwaan, your AI coding mentor.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/Rijul-Sharma/Master-Ruwaan-vscode.git"
